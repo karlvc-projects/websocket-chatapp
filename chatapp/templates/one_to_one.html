@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <form action="" onsubmit="sendMessage(event)">
+            <label>My number</label>
+            <input type="text" id="my_number" autocomplete="off"/>
+            <label>Receiver</label>
+            <input type="text" id="receiver_number" autocomplete="off"/><br><br>
+            <label>Message</label>
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+        
+        <script>
+            var ws = new WebSocket("ws://localhost:8000/ws");
+            ws.onmessage = function(event) {
+                data = JSON.parse(event.data)
+                var my_number = document.getElementById("my_number").value
+                var reciever_id = document.getElementById("receiver_number").value
+                if (my_number==data["user_number"]) {
+                    message_text = `you: ${data['message']}`
+                } else{
+                    message_text = `${data["user_number"]}: ${data['message']}`
+                }
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(message_text)
+                message.appendChild(content)
+                messages.appendChild(message)
+
+            };
+
+            function sendMessage(event) {
+                var message = document.getElementById("messageText").value
+                var receiver_number = document.getElementById("receiver_number").value
+                var my_number = document.getElementById("my_number").value
+                ws.send(JSON.stringify({"user_number":my_number,"message":message,"receiver_number":receiver_number}))
+                document.getElementById("messageText").value='';
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>
+
+
